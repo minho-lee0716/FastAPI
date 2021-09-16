@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form, UploadFile, Response, status
 from pydantic import BaseModel
 
 import uvicorn
@@ -8,14 +8,19 @@ import uvicorn
 app = FastAPI()
 
 class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Optional[bool] = None
+    name: str # Required
+    price: float # Required
+    is_offer: Optional[bool] = None  # Optional
 
 
 @app.get("/")
-async def read_root():
-    return {"Hello": "World"}
+async def read_root(res: Response):
+    res.status_code = 404
+    return {"name":"lee"}
+
+#@app.get("/{id}")
+#async def res(res: Response):
+
 
 
 @app.get("/items/{item_id}")
@@ -23,7 +28,7 @@ async def read_item(item_id: int, q: Optional[str] = None):
     return {"item_id": item_id, "q": q}
 
 @app.post("/json")
-async def json_test(req: Request, body: Item):
+async def json_test(req: Request, file: UploadFile = Form(...)):
 #    for element in dir(req):
 #        if element[0] == "_":
 #            continue
@@ -45,6 +50,9 @@ async def json_test(req: Request, body: Item):
     print('url = ', req.url)
     print('values = ', req.values)
 
+    print(req.form)
+    print(dir(req.form))
+
 #    qp = req.query_params
 #    print(qp)
 #    print(type(qp))
@@ -58,9 +66,19 @@ async def json_test(req: Request, body: Item):
 #    print(req.values())
 #    print(dir(req.values))
 
-    print(body)
+#    print(body)
 
-    return {"message": "success"}
+#    print(file)
+#    print(dir(file))
+#    print('File Size = ', len(file))
+    print('####################')
+    print('File Name         = ', file.filename)
+    print('File Content-Type = ', file.content_type)
+    print('####################')
+
+#    print(dir(req.form()))
+
+    return ({"message": "success"})
 
 
 @app.put("/items/{item_id}")
